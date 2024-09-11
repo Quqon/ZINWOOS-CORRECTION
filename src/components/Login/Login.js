@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Login.scss';
 
 const Login = ({ modalLogin, setShowLogin }) => {
@@ -10,25 +11,33 @@ const Login = ({ modalLogin, setShowLogin }) => {
     phoneNumber: '',
     address: '',
   });
+  const navigate = useNavigate();
+
+  const validatePassword = (password) => {
+    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,20})/;
+    return re.test(password)
+  }
 
   const isLoginValid =
     inputValue.email.includes('@') && inputValue.password.length > 4;
 
   const isSignupVaild =
     inputValue.email.includes('@') &&
-    inputValue.password.length > 4 &&
+    validatePassword(inputValue.password) &&
     inputValue.name.length > 1 &&
-    inputValue.phoneNumber.length >= 10;
+    inputValue.phoneNumber.length >= 10 &&
+    inputValue.address.length >= 1;
 
   const handleInput = event => {
     const { name, value } = event.target;
 
     setInputValue({ ...inputValue, [name]: value });
+    // eslint-disable-next-line
   };
 
   const handleLogin = e => {
     e.preventDefault();
-    fetch('http://172.20.10.3:3000/users/signin', {
+    fetch('http://127.0.0.1:3000/users/signin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify({
@@ -38,12 +47,19 @@ const Login = ({ modalLogin, setShowLogin }) => {
     })
       .then(response => response.json())
       .then(data => {
+        // eslint-disable-next-line
         if (data.accessToken) {
           alert('환영합니다');
           setShowLogin(false);
           localStorage.setItem('token', data.accessToken);
           window.location.reload();
-        } else if (data.message === 'INVALID_USER') {
+        } else if (data.adminAccessToken) {
+          alert('관리자님 환영합니다');
+          setShowLogin(false);
+          localStorage.setItem('adminAccessToken', data.adminAccessToken);
+          navigate('/users/admin');
+        } 
+        else if (data.message === 'INVALID_USER') {
           alert('등록되지 않은 사용자입니다.');
         }
       });
@@ -51,7 +67,9 @@ const Login = ({ modalLogin, setShowLogin }) => {
 
   const handleSignUp = e => {
     e.preventDefault();
-    fetch('http://172.20.10.3:3000/users/signup', {
+    // eslint-disable-next-line
+    console.log('Sign up button clicked');
+    fetch('http://127.0.0.1:3000/users/signup', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json;charset=utf-8' },
       body: JSON.stringify({
@@ -144,12 +162,12 @@ const Login = ({ modalLogin, setShowLogin }) => {
           </div>
         </form>
         {typeOfForm === '로그인' ? (
-          <div className="change-input-type">
-            계정이 없으신가요? <span onClick={handleForm}>회원가입</span>
+          <div className="change-input-type" onClick={handleForm}>
+            계정이 없으신가요? 회원가입
           </div>
         ) : (
-          <div className="change-input-type">
-            이미 가입하셨나요? <span onClick={handleForm}>로그인</span>
+          <div className="change-input-type" onClick={handleForm}>
+            이미 가입하셨나요? 로그인
           </div>
         )}
       </div>

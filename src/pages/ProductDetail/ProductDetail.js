@@ -14,32 +14,19 @@ const ProductDetail = () => {
     name,
     description,
     price,
-    image_url,
-    option_price,
-    option_name,
+    detail_image,
     main_category_name,
     sub_category_name,
     max_amount,
   } = product;
-  const [optionPrice, setOptionPrice] = useState(0);
-  const [optionId, setOptionId] = useState(null);
+
   useEffect(() => {
-    fetch(`http://172.20.10.3:3000/items/${productId}`)
+    fetch(`http://127.0.0.1:3000/items/${productId}`)
       .then(response => response.json())
       .then(result => {
         setProduct(result.data[0]);
       });
   }, [productId]);
-
-  const optionHandler = e => {
-    if (e.target.value) {
-      setOptionPrice(option_price);
-      setOptionId(Number(e.target.value));
-    } else {
-      setOptionPrice(0);
-      setOptionId(null);
-    }
-  };
 
   return (
     <div className="ProductDetail">
@@ -50,7 +37,7 @@ const ProductDetail = () => {
         />
         <div className="product">
           <article className="product-item">
-            {product.image_url && <ProductImg img={image_url} alt={name} />}
+            {detail_image && <ProductImg img={`http://127.0.0.1:3000${detail_image}`} alt={name} />}
             <div className="product-item-contents">
               <h1 className="product-item-contents-title">{name}</h1>
               <p className="product-item-contents-info">{description}</p>
@@ -63,13 +50,11 @@ const ProductDetail = () => {
                 <li>100,000원 이상 구매시 무료 / 제주,도서지역 추가 3,000원</li>
               </ul>
               <PriceCalculator
+                name={name}
                 price={price}
                 productId={productId}
-                optionId={optionId}
-                option_name={option_name}
-                optionHandler={optionHandler}
-                optionPrice={optionPrice}
                 max_amount={max_amount}
+                detail_image={detail_image}
               />
             </div>
           </article>

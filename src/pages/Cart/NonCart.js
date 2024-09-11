@@ -1,37 +1,36 @@
 import { React, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import ListTable from './ListTable';
+import NonListTable from './NonListTable';
 
 import './Cart.scss';
+import { check } from 'prettier';
 
-const Cart = () => {
+const NonCart = () => {
   const token = localStorage.getItem('token') || localStorage.getItem('adminAccessToken');
   const [cartList, setCartList] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [shipFee, setShipFee] = useState(3000);
   const location = useLocation();
-  
+  const sessionId = sessionStorage.getItem('sessionId');
+
+  const result = !token && location.state ? location.state.result : null;
+
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let response;
+    fetch('http://127.0.0.1:3000/carts/non', {
+      headers: { Authorization: sessionId },
+      credentials: 'include'
+    })
+    .then(response => response.json())
+    .then(data => setCartList(data.cart))
+  }, [])
 
-        if (token) {
-          response = await fetch('http://127.0.0.1:3000/carts?limit=50&offset=0', {
-            headers: { Authorization: token },
-          })
-        }
-
-        const data = await response.json();
-        setCartList(data.cartList)
-        
-      } catch (error) {
-        console.error('Error fetching cart data:', error);
-      }
+  useEffect(() => {
+    if (result) {
+      setCartList(result);
     }
-
-    fetchData()
-  }, [token]);
+  }, [result])
+  
 
   useEffect(() => {
     const copy = [...(cartList.cartList || [])];
@@ -39,7 +38,7 @@ const Cart = () => {
 
     let price = 0;
     buyList.forEach(item => {
-      price += item.quantity * (Number(item.Item.price) + (item?.Option ? 30000 : 0));
+      price += item.quantity * (Number(item.price) + (item?.optionName ? 30000 : 0));
     });
 
     price >= 100000 ? setShipFee(0) : setShipFee(3000);
@@ -82,7 +81,7 @@ const Cart = () => {
                 <h1>장바구니</h1>
               </div>
               <div className="cart-list">
-                <ListTable cartList={cartList} setCartList={setCartList} />
+                <NonListTable cartList={cartList} setCartList={setCartList} />
                 <div className="price-box">
                   <ul>
                     <li>
@@ -129,4 +128,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default NonCart;

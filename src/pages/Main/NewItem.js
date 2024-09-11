@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './NewItem.scss';
 
 const NewItem = ({ itemData }) => {
@@ -10,17 +11,19 @@ const NewItem = ({ itemData }) => {
       <div className="New-product-wrap">
         {itemData.map(item => {
           return (
-            <div key={item.id} className="New-product">
-              <div className="New-product-image">
-                <img
-                  className="product-image"
-                  src={item.image_URL[0]}
-                  alt={item.description}
-                />
+            <Link to={`./product_detail/${item.id}`}> 
+              <div key={item.id} className="New-product">
+                <div className="New-product-image">
+                  <img
+                    className="product-image"
+                    src={`http://127.0.0.1:3000${item.detail_image}`}
+                    alt={item.description}
+                  />
+                </div>
+                <h2 className="New-product-title">{item.name}</h2>
+                <p className="New-product-content">{item.description}</p>
               </div>
-              <h2 className="New-product-title">{item.name}</h2>
-              <p className="New-product-content">{item.description}</p>
-            </div>
+            </Link>
           );
         })}
       </div>

@@ -2,8 +2,20 @@ import { Link } from 'react-router-dom';
 import { React, useEffect, useState } from 'react';
 import './ListTable.scss';
 
-const ListTable = ({ cartList, setCartList }) => {
+const NonListTable = ({ cartList, setCartList }) => {
   const [selectAll, setSelectAll] = useState(true);
+
+  const [sessionId, setSessionId] = useState('');
+
+  useEffect(() => {
+    // sessionStorage에서 sessionId를 가져옴
+    const storedSessionId = sessionStorage.getItem('sessionId');
+    if (storedSessionId) {
+      setSessionId(storedSessionId);
+    } else {
+      console.error('No session ID found in sessionStorage');
+    }
+  }, []);
 
   useEffect(() => {
     const checkedArr = cartList.map(item => item.checkbox);
@@ -22,7 +34,7 @@ const ListTable = ({ cartList, setCartList }) => {
 
   const handleCheckbox = event => {
     const updatedCartList = cartList.map(item => {
-      if (String(item.Item.id + (item.Option?.name || '')) === event.target.name) {
+      if (String(item.id + (item?.optionName || '')) === event.target.name) {
         return { ...item, checkbox: item.checkbox ? 0 : 1 };
       }
       return item;
@@ -36,25 +48,22 @@ const ListTable = ({ cartList, setCartList }) => {
       .map(item => item.id);
 
     const response = await fetch(
-      `http://127.0.0.1:3000/carts?cartId=${deleteItemIds.join('&cartId=')}`,
+      `http://127.0.0.1:3000/carts/nonDelete?cartId=${deleteItemIds.join('&cartId=')}`,
       {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
-          Authorization: localStorage.getItem('token'),
+          Authorization: sessionId,
+          // Authorization: sessionStorage.getItem(sessionId),
         },
+        credentials: 'include'
       }
     );
 
     const data = await response.json();
 
     if (data.message === 'DELETE_SUCCESS') {
-      const response = await fetch(
-        'http://127.0.0.1:3000/carts?limit=50&offset=0',
-        { headers: { Authorization: localStorage.getItem('token') } }
-      );
-      const newData = await response.json();
-      setCartList(newData.cartList);
+      setCartList(data.cartList);
     }
   };
 
@@ -102,10 +111,10 @@ const ListTable = ({ cartList, setCartList }) => {
   
   const cartItems = cartList.map((item, i) => {
     return (
-    <tr key={String(item.Item.id) + (item.Option ? item.Option.name : '')} className="cart-item">
+    <tr key={String(item.id) + (item.optionName ? item.optionName : '')} className="cart-item">
       <td>
         <input
-          name={String(item.Item.id) + (item.Option ? item.Option.name : '')}
+          name={String(item.id) + (item.optionName ? item.optionName : '')}
           className="checkbox"
           type="checkbox"
           checked={item.checkbox}
@@ -116,14 +125,14 @@ const ListTable = ({ cartList, setCartList }) => {
         <span>
           <Link to="">
             <img
-              src={`http://127.0.0.1:3000${item.Item.detail_image}`}
+              src={`http://127.0.0.1:3000${item.detail_image}`}
               alt="제품사진"
             />
           </Link>
         </span>
         <div>
-          <div>{item.Item.name}</div>
-          {item.Option && <div>{`옵션: ${item.Option.name}`}</div>}
+          <div>{item.itemName}</div>
+          {item.optionName && <div>{`옵션: ${item.optionName}`}</div>}
         </div>
       </td>
       <td>
@@ -149,10 +158,10 @@ const ListTable = ({ cartList, setCartList }) => {
           +
         </button>
       </td>
-      <td>{`${parseInt(Number(item.Item.price) + (item?.Option ? 30000 : 0)).toLocaleString()}원`}</td>
+      <td>{`${parseInt(Number(item.price) + (item?.optionName ? 30000 : 0)).toLocaleString()}원`}</td>
       <td>지누쓰마음</td>
       <td>무료배송</td>
-      <td>{`${(item.quantity * (Number(item.Item.price) + (item?.Option ? 30000 : 0))).toLocaleString()}원`}</td>
+      <td>{`${(item.quantity * (Number(item.price) + (item?.optionName ? 30000 : 0))).toLocaleString()}원`}</td>
     </tr>
   )});
 
@@ -189,4 +198,4 @@ const ListTable = ({ cartList, setCartList }) => {
   );
 };
 
-export default ListTable;
+export default NonListTable;

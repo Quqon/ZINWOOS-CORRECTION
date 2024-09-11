@@ -3,7 +3,7 @@ import { useState } from 'react';
 import './ProductImg.scss';
 
 const ProductImg = ({ img, alt }) => {
-  const [mainImg, setMainImg] = useState(img[0]);
+  const [mainImg, setMainImg] = useState(img);
 
   return (
     <div className="ProductImg">
@@ -11,17 +11,7 @@ const ProductImg = ({ img, alt }) => {
         <img className="product-img" alt={alt} src={mainImg} />
       </div>
       <div className="product-sub-img-container">
-        {img.map((item, i) => {
-          return (
-            <div
-              onMouseEnter={e => setMainImg(e.target.src)}
-              key={i}
-              className="sub-img-wrap"
-            >
-              <img className="product-sub-img" alt={alt} src={item} />
-            </div>
-          );
-        })}
+        
       </div>
     </div>
   );

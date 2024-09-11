@@ -9,22 +9,24 @@ const Likes = () => {
 
   useEffect(
     () => {
-      fetch('http://172.20.10.3:3000/likes', {
+      fetch('http://127.0.0.1:3000/likes', {
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
           Authorization: token,
         },
       })
         .then(res => res.json())
-        .then(result => setLikeList(result.data));
+        .then(result => {
+          console.log(result.data, 'resultData')
+          setLikeList(result.data)});
     },
     // eslint-disable-next-line
     []
   );
 
   // 삭제 버튼
-  const deleteBtn = async id => {
-    const response = await fetch(`http://172.20.10.3:3000/likes/${id}`, {
+  const deleteBtn = async (id) => {
+    const response = await fetch(`http://127.0.0.1:3000/likes/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json;charset=utf-8',
@@ -34,7 +36,7 @@ const Likes = () => {
 
     if (response.status === 204) {
       alert('관심상품에서 삭제했습니다');
-      fetch(`http://172.20.10.3:3000/likes/`, {
+      fetch(`http://127.0.0.1:3000/likes/`, {
         headers: {
           Authorization: token,
         },

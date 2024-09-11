@@ -8,6 +8,11 @@ import Footer from './components/Footer/Footer';
 import Cart from './pages/Cart/Cart';
 import Likes from './pages/Likes/Likes';
 import ScrollToTop from './components/Nav/ScrollToTop';
+import AdminPage from './pages/AdminPage/adminPage';
+import UserPayment from './pages/Payment/UserPayment';
+import Complete from './pages/Payment/Complete';
+import Payment from './pages/Payment/Payment';
+import NonCart from './pages/Cart/NonCart';
 
 const Router = () => {
   return (
@@ -18,8 +23,13 @@ const Router = () => {
         <Route path="/" element={<Main />} />
         <Route path="/product_detail/:itemId" element={<ProductDetail />} />
         <Route path="/product_list/:id/:id2" element={<ProductList />} />
-        <Route path="/cart" element={<Cart />} />
+        <Route path="/carts" element={<Cart />} />
         <Route path="/likes" element={<Likes />} />
+        <Route path="/users/admin" element={<AdminPage />} />
+        <Route path="/payment/user" element={<UserPayment />}/>
+        <Route path="/payment" element={<Payment />}/>
+        <Route path="/payment/complete" element={<Complete />}/>
+        <Route path="/nonCarts" element={<NonCart />}/>
       </Routes>
       <Footer />
     </BrowserRouter>

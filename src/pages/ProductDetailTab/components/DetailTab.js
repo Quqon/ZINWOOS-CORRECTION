@@ -8,7 +8,7 @@ const DetailTab = ({ product }) => {
         <div className="detail-main-img-wrap">
           <img
             className="detail-main-img"
-            src={product.detail_image}
+            src={`http://127.0.0.1:3000${product.detail_image}`}
             alt="메인 상세 사진"
           />
           <div className="detail-main-contents">

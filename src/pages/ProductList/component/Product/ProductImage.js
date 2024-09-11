@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import './ProductImage.scss';
 
 const ProductImage = ({ product }) => {
-  const { description, detail_image, items_name, price, tags_name, items_id } =
+  const { description, detail_image, name, price, tags_name, id } =
     product;
 
   const value = parseInt(price)
@@ -13,11 +13,11 @@ const ProductImage = ({ product }) => {
   return (
     <div className="ProductImage">
       <div className="thumb">
-        <Link key={items_name} to={`/product_detail/${items_id}`}>
-          <img src={detail_image} alt={items_name} className="model" />
+        <Link key={name} to={`/product_detail/${id}`}>
+          <img src={`http://127.0.0.1:3000${detail_image}`} alt={name} className="model" />
         </Link>
       </div>
-      <div className="product-name">{items_name}</div>
+      <div className="product-name">{name}</div>
       <div className="shirts-info"> {description}</div>
       <div className="price">{value}원</div>
       <div>

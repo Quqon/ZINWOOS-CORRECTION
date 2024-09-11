@@ -5,38 +5,26 @@ import MainImage from './component/MainImage/MainImage';
 import ProductImage from './component/Product/ProductImage';
 
 const ProductList = () => {
-  const [product, setProduct] = useState([]);
+  const [product, setProduct] = useState(null);
   const [order, setOrder] = useState(true);
-  const [sort, setSort] = useState('items_name');
+  const [sort, setSort] = useState('name');
   const params = useParams();
   const mainId = params;
 
   useEffect(() => {
-    if (Number(mainId.id2) !== 0) {
       fetch(
-        `http://172.20.10.3:3000/items/${mainId.id}?${
-          mainId.id2
-        }&sort=${sort}&order=${order ? 'ASC' : 'DESC'}&limit=100&offset=0`
+        `http://127.0.0.1:3000/items/${mainId.id}?${mainId.id2}&sort=${sort}&order=${order ? 'ASC' : 'DESC'}&limit=100&offset=0`
       )
-        .then(res => res.json())
-        .then(data => {
-          setProduct(data.data);
-        });
-    } else {
-      fetch(
-        `http://172.20.10.3:3000/items/${mainId.id}?sort=${sort}&order=${
-          order ? 'ASC' : 'DESC'
-        }&limit=100&offset=0`
-      )
-        .then(res => res.json())
-        .then(data => {
-          setProduct(data.data);
-        });
-    }
+      
+      .then(res => res.json())
+      .then(data => {
+        console.log(data, 'data')
+        setProduct(data.data);
+      });
   }, [mainId, order, sort]);
 
   const nameSortHandler = () => {
-    setSort('items_name');
+    setSort('name');
     setOrder(!order);
   };
 
@@ -46,19 +34,21 @@ const ProductList = () => {
   };
 
   const likesSortHandler = () => {
-    setSort('likes');
+    setSort('likeCount');
     setOrder(!order);
   };
 
-  const isData = product.length !== 0;
+  if (product === null) return <>loading...</>;
 
-  if (!isData) return <>loading...</>;
+  const isData = Array.isArray(product) && product.length > 0;
+
+  if (!isData) return <>No products available</>;
 
   return (
     <div className="ProductList">
       <MainImage
-        mainTitle={product[0].main_cate_name}
-        mainText={product[0].main_description}
+        mainTitle={product[0].main_category_name}
+        mainText={product[0].main__category_description}
       />
       <div id="tag" />
       <div className="contents">
@@ -84,7 +74,12 @@ const ProductList = () => {
           <div className="product-content">
             <div className="product-list">
               {product.map(e => {
-                return <ProductImage product={e} key={e.items_id} />;
+                return (
+                  <ProductImage
+                    product={e}
+                    key={`${e.items_id}-${e.item_id}`}
+                  />
+                );
               })}
             </div>
           </div>

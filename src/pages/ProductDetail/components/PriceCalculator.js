@@ -1,48 +1,133 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PriceCalculator.scss';
+import { useNavigate } from 'react-router-dom';
 
 const PriceCalculator = ({
-  optionId,
+  name,
   productId,
-  option_name,
-  optionHandler,
-  optionPrice,
   price,
   max_amount,
+  detail_image
 }) => {
+  const [optionPrice, setOptionPrice] = useState(0);
+  const [optionId, setOptionId] = useState(null);
+  const itemName = name;
   const [quantity, setQuantity] = useState(1);
-  const totalPrice = (price * 1 + optionPrice * 1) * quantity;
+  const totalPrice = (Number(price) + optionPrice) * quantity;
   const [wishList, setWishList] = useState(false);
-  const token = localStorage.getItem('token');
+  const [token, setToken] = useState(localStorage.getItem('token') || localStorage.getItem('adminAccessToken'));
+  const [product, setProduct] = useState('');
+  const [nonCartList, setNonCartList] = useState([]);
 
-  const addCartHandler = () => {
-    if (token) {
-      fetch('http://172.20.10.3:3000/carts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json;charset=utf-8',
-          Authorization: token,
-        },
-        body: JSON.stringify({
-          itemId: productId,
-          optionId: optionId,
-          quantity: quantity,
-        }),
-      }).then(result => {
-        if (result.status === 201) {
-          alert('장바구니에 상품이 담겼습니다!');
-        }
-      });
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const setTokenHandler = () => {
+      setToken(localStorage.getItem('token') || localStorage.getItem('adminAccessToken'));
+    };
+    
+    window.addEventListener('storage', setTokenHandler);
+
+    return () => {
+      window.removeEventListener('storage', setTokenHandler);
+    };
+  }, []);
+
+  const optionHandler = e => {
+    if (e.target.value) {
+      setOptionPrice(30000);
+      setOptionId(Number(e.target.value));
     } else {
-      alert('로그인 후 장바구니에 담아주세요!');
+      setOptionPrice(0);
+      setOptionId(null);
     }
   };
+
+  const paymentHandler = async () => {
+    if (token) {
+      try {
+        const response = await fetch('http://127.0.0.1:3000/payment', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            Authorization: token,
+          },
+        });
+        if (response.status !== 201) {
+          console.error('Error: ', response.statusText);
+        }
+        const result = await response.json();
+        navigate('/payment/user', { state: { result, itemName, price, optionPrice, totalPrice, quantity, detail_image } });
+      } catch (error) {
+        console.error('Error: ', error);
+      }
+    } else {
+      navigate('/payment', { state: { itemName, price, optionPrice, totalPrice, quantity, detail_image }});
+    }
+  };
+
+  const addCartHandler = async() => {
+    try {
+      if (token) {
+        fetch('http://127.0.0.1:3000/carts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json;charset=utf-8',
+            Authorization: token,
+          },
+          body: JSON.stringify({
+            itemId: productId,
+            optionId: optionId,
+            quantity: quantity,
+          }),
+        }).then(result => {
+          if (result.status === 201) {
+            alert('장바구니에 상품이 담겼습니다!');
+          }
+        });
+      } else {
+        fetch('http://127.0.0.1:3000/carts/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: sessionStorage.getItem('sessionId')
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            itemId: productId,
+            optionId: optionId,
+            quantity: quantity,
+            itemName: itemName,
+            detail_image: detail_image,
+            id: productId,
+            checkbox: true,
+            price: price
+          })
+        })
+        .then(response => {
+          if (response.status === 200) {
+            alert('장바구니에 상품이 담겼습니다!');
+            return response.json();
+          } else {
+            throw new Error(`Error: ${response.statusText}`);
+          }
+        })
+        .then(data => {
+          const result = data.cart;
+          navigate('/nonCarts', { state: { result }})
+        })
+
+      }
+    } catch (error) {
+      console.error('Error adding to cart', error);
+    }
+  }
+
   const addWishList = e => {
     e.preventDefault();
     if (token) {
       setWishList(!wishList);
-      fetch('http://172.20.10.3:3000/likes', {
+      fetch('http://127.0.0.1:3000/likes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=utf-8',
@@ -74,16 +159,16 @@ const PriceCalculator = ({
       <div className="product-item-contents-option">
         <h2 className="product-item-contents-option-title">추가상품</h2>
         <select className="option-selector" onChange={optionHandler}>
-          <option value="">{option_name}</option>
-          <option value="1">{option_name}(+30,000원)</option>
+          <option value="">선택안함</option>
+          <option value="1">친필사인 추가(+30,000원)</option>
         </select>
       </div>
       <div className="quantity">
-        <button className="quantity-button" onClick={minusQuantity}>
+        <button className="quantity-minus-button" onClick={minusQuantity}>
           <i className="fa-solid fa-minus" />
         </button>
-        <input className="quantity-input" value={quantity} type="number" />
-        <button className="quantity-button" onClick={plusQuantity}>
+        <input className="quantity-input" value={quantity} type="number" readOnly />
+        <button className="quantity-plus-button" onClick={plusQuantity}>
           <i className="fa-solid fa-plus" />
         </button>
       </div>
@@ -92,7 +177,7 @@ const PriceCalculator = ({
         <div className="total-price">{`${totalPrice.toLocaleString()} 원`}</div>
       </div>
       <form className="product-item-contents-buttons">
-        <input className="payment-button" type="button" value="결제하기" />
+        <input className="payment-button" type="button" value="결제하기" onClick={paymentHandler}/>
         <input
           className="cart-button"
           type="button"
@@ -112,4 +197,5 @@ const PriceCalculator = ({
     </div>
   );
 };
+
 export default PriceCalculator;

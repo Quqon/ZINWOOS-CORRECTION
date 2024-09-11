@@ -2,12 +2,61 @@ import React, { useState, useEffect } from 'react';
 import Carousel from './Carousel';
 import NewItem from './NewItem';
 import './Main.scss';
+import { jwtDecode } from 'jwt-decode';
+import { DateTime } from 'luxon';
+
+const getToken = () => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return null;
+  }
+  try {
+    const decoded = jwtDecode(token);
+    if (!decoded) {
+      localStorage.removeItem('token');
+      return null;
+    }
+
+    const currentTime = DateTime.now() / 1000;
+    if (decoded.exp < currentTime) {
+      localStorage.removeItem('token');
+      return null;
+    }
+  } catch (error) {
+    console.error(error)
+    localStorage.removeItem('token')
+    return null;
+  }
+
+  return token;
+}
 
 const Main = () => {
   const [newList, setNewList] = useState([]);
 
   useEffect(() => {
-    fetch('http://172.20.10.3:3000/items/new')
+        fetch('http://127.0.0.1:3000/', {
+          method: 'GET',
+          credentials: 'include'
+        })
+        .then(response => response.json())
+        .then(data => {
+          const sessionId = data.sessionId;
+          sessionStorage.setItem('sessionId', sessionId);
+        })
+
+    }, [])
+
+  useEffect(() => {
+    const token = getToken();
+
+    if (!token) {
+      localStorage.removeItem('token');
+    }
+  }, [])
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:3000/items/new')
       .then(response => response.json())
       .then(result => {
         setNewList(result.data);

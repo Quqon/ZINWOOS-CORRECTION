@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Login from '../Login/Login';
 import Dropdown from './Dropdown';
 import './Nav.scss';
 
 const Nav = () => {
+  const navigate = useNavigate();
   const [isHovering, setIsHovering] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
 
   const getLogout = () => {
+    localStorage.removeItem('adminAccessToken');
     localStorage.removeItem('token');
     window.location.reload();
   };
@@ -23,6 +25,15 @@ const Nav = () => {
   const modalLogin = () => {
     setShowLogin(!showLogin);
   };
+  const likeProduct = () => {
+    if (localStorage.getItem('token') || localStorage.getItem('accessAccessToken')) {
+      navigate("/likes");
+    } else {
+      alert('로그인이 필요한 요청입니다.');
+      navigate("/");
+    }
+  }
+
   return (
     <div className="Nav">
       <div className="container">
@@ -43,7 +54,7 @@ const Nav = () => {
           <div>SUPPORT</div>
         </div>
         <div className="nav-control">
-          {localStorage.getItem('token') ? (
+          {localStorage.getItem('token') || localStorage.getItem('adminAccessToken') ? (
             <div className="nav-right-tab" onClick={getLogout}>
               Log out
             </div>
@@ -52,15 +63,19 @@ const Nav = () => {
               Login & SignUp
             </div>
           )}
-          <Link to="/likes">
-            <div className="nav-right-tab">관심상품</div>
-          </Link>
+          <div className="nav-right-tab" onClick={likeProduct}>관심상품</div>
           <Link to="#">
             <div className="nav-right-tab">주문배송</div>
           </Link>
-          <Link to="/cart">
+          {localStorage.getItem('token') || localStorage.getItem('adminAccessToken') ? (
+            <Link to="/carts">
             <div>장바구니</div>
           </Link>
+          ) : (
+            <Link to="/nonCarts">
+            <div>장바구니</div>
+          </Link>
+          )}
         </div>
       </div>
 
