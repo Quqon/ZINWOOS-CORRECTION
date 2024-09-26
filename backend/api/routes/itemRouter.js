@@ -8,6 +8,6 @@ itemRouter.get('/new', itemController.getNewList);
 itemRouter.get('/all', itemController.getAll);
 itemRouter.get('/:id', itemController.getItemById);
 itemRouter.delete('/:itemName', itemController.deleteItem);
-itemRouter.put('/:update', itemController.updateItem);
+itemRouter.put('/:updateName', itemController.updateItem);
 
 module.exports = itemRouter;

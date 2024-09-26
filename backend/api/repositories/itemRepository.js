@@ -121,7 +121,7 @@ const deleteItem = async (itemName) => {
 
 const updateItem = async (updateItemName, name, description, price, detail, max_amount, stock) => {
     try {
-        const result = await db.Items.update(
+        const [affectedRows] = await db.Items.update(
             {
                 name,
                 description,
@@ -134,9 +134,10 @@ const updateItem = async (updateItemName, name, description, price, detail, max_
                 where: { name: updateItemName }
             }
         )
-        return result;
+        return affectedRows;
     } catch (error) {
         console.error(error.message)
+        throw error;
     }
 }
 

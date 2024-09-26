@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DECIMAL(8, 1)
         }
     }, {
+        tableName: 'options',
         timestamps: false
     }
     );

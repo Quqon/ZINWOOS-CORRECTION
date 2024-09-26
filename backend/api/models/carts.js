@@ -42,6 +42,7 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 1
         }
     }, {
+        tableName: 'carts',
         timestamps: false
     })
 

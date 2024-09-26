@@ -67,10 +67,10 @@ const deleteItem = asyncWrap(async (req, res) => {
 })
 
 const updateItem = asyncWrap(async (req, res) => {
-    const updateItemName = req.params.updateItem;
-    const { name, description, price, detail, max_amount, stock } = req.body;
+    const updateItem = req.params.updateName;
+    const { updateItemName, updateItemDescription, updateItemPrice, updateItemDetail, updateItemMaxAmount, updateItemStock } = req.query;
 
-    const result = await itemService.updateItem(updateItemName, name, description, price, detail, max_amount, stock);
+    const result = await itemService.updateItem(updateItem, updateItemName, updateItemDescription, updateItemPrice, updateItemDetail, updateItemMaxAmount, updateItemStock);
     return res.status(201).json({ message: "Item update success" });
 })
 

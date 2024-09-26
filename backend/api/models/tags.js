@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(50),
         }
     }, {
+        tableName: 'tags',
         timestamps: false
     })
 

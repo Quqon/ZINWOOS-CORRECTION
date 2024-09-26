@@ -12,7 +12,10 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true,
             type: DataTypes.INTEGER
         }
-    }, { timestamps: false });
+    }, {
+        tableName: 'main_categories',
+        timestamps: false
+    });
 
     Main_categories.associate = (models) => {
         Main_categories.belongsToMany(models.Items, { through: models.Sub_categories })

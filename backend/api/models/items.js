@@ -45,6 +45,7 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER.UNSIGNED
         }
     }, {
+        tableName: 'items',
         timestamps: true,
         createdAt: 'created_at',
         updatedAt: 'updated_at'
