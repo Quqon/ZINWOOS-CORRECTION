@@ -4,15 +4,24 @@
   margin-right: 120px;
 }
 
-input {
-  width: 200px;  
-  height: 40px;  
-  padding: 300px;  
-  margin: 10px 0;  
-  border: 1px solid #ccc;  
-  border-radius: 4px;  
-  box-sizing: border-box;  
-  font-size: 16px;  
+.rightItems {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.rightItems form {
+  width: 100%;
+}
+
+.container input {
+  width: 200px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 16px;
 }
 
 input[name=itemSubmit] {
@@ -32,17 +41,18 @@ input[name=deleteItemInput] {
   margin-top: 10px;
   margin-bottom: 10px;
   padding: 0px;
-  font-size:16px;
+  font-size: 16px;
 }
 
 .item {
-  padding-top: 100px;
+  padding-top: 50px;
   padding-right: 320px;
 }
 
-h1[name=title] {
+.container h1 {
+  padding-top: 50px;
   padding-bottom: 20px;
-  font-size: 20px;
+  font-size: 23px;
   font-weight: bold;
 }
 
@@ -58,7 +68,7 @@ h1[name=title] {
   margin-top: 10px;
   margin-bottom: 10px;
   padding: 0px;
-  font-size:16px;
+  font-size: 16px;
 }
 
 .inputSecond input {
@@ -66,7 +76,7 @@ h1[name=title] {
   height: 20px;
   margin-right: 0px;
   padding: 0px;
-  font-size:16px;
+  font-size: 16px;
 }
 
 .inputFirst h2 {
@@ -78,28 +88,42 @@ h1[name=title] {
 }
 
 button[name=itemButton] {
-  width: 100px;   
-  height: 40px;   
-  padding: 10px;   
-  margin: 10px; 
-  margin-left: 310px;  
-  border: none; 
-  border-radius: 4px; 
-  background-color: #007bff; 
+  width: 100px;
+  height: 40px;
+  padding: 10px;
+  margin: 10px;
+  margin-left: 310px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
 }
 
 button[name=deleteButton] {
-  width: 100px;   
-  height: 40px;   
-  padding: 10px;   
-  margin: 10px; 
-  margin-left: 310px;  
-  border: none; 
-  border-radius: 4px; 
-  background-color: #d90d0dce; 
+  width: 100px;
+  height: 40px;
+  padding: 10px;
+  margin: 10px;
+  margin-left: 310px;
+  border: none;
+  border-radius: 4px;
+  background-color: #d90d0dce;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button[name=updateButton] {
+  width: 100px;
+  height: 40px;
+  padding: 10px;
+  margin: 10px;
+  margin-left: 50px;
+  border: none;
+  border-radius: 4px;
+  background-color: #284d30ce;
   color: #fff;
   font-size: 16px;
   cursor: pointer;
@@ -111,6 +135,10 @@ button[name=itemButton]:hover {
 
 button[name=deleteButton]:hover {
   background-color: #8c0b0bce;
+}
+
+button[name=updateButton]:hover {
+  background-color: #043c11ce;
 }
 
 .deleteItem {

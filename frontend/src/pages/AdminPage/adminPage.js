@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import './style.css';
+import axios from 'axios';
 
 const AdminPage = () => {
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  
+
   const [selectedItemFile, setSelectedItemFile] = useState(null);
   const [inputItemName, setInputItemName] = useState('');
   const [inputItemDescription, setInputItemDescription] = useState('');
@@ -21,16 +22,17 @@ const AdminPage = () => {
 
   const [deleteItemName, setDeleteItemName] = useState('');
 
+  const [updateName, setUpdateName] = useState('');
   const [updateItemName, setUpdateItemName] = useState('');
   const [updateItemDescription, setUpdateItemDescription] = useState('');
   const [updateItemPrice, setUpdateItemPrice] = useState('');
   const [updateItemDetail, setUpdateItemDetail] = useState('');
   const [updateItemMaxAmount, setUpdateItemMaxAmount] = useState('');
   const [updateItemStock, setUpdateItemStock] = useState('');
-  
+
   useEffect(() => {
     const token = localStorage.getItem('adminAccessToken');
-    
+
     if (!token) {
       alert('관리자 권한이 필요합니다.');
       navigate('/');
@@ -43,24 +45,24 @@ const AdminPage = () => {
         Authorization: `Bearer ${token}`,
       },
     })
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error('권한이 없습니다.');
-      }
-    })
-    .then((data) => {
-      if (data.message === 'Welcome to the admin Page') {
-        setIsAuthenticated(true);
-      } else {
-        throw new Error('권한이 없습니다.');
-      }
-    })
-    .catch((error) => {
-      alert(error.message);
-      navigate('/');
-    });
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('권한이 없습니다.');
+        }
+      })
+      .then((data) => {
+        if (data.message === 'Welcome to the admin Page') {
+          setIsAuthenticated(true);
+        } else {
+          throw new Error('권한이 없습니다.');
+        }
+      })
+      .catch((error) => {
+        alert(error.message);
+        navigate('/');
+      });
   }, [navigate]);
 
   if (!isAuthenticated) {
@@ -103,7 +105,7 @@ const AdminPage = () => {
     setInputItemStock(event.target.value);
   }
 
-  const itemSubmit = async(event) => {
+  const itemSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('file', selectedItemFile);
@@ -167,6 +169,10 @@ const AdminPage = () => {
     }
   }
 
+  const handleUpdateName = (event) => {
+    setUpdateName(event.target.value);
+  }
+
   const handleUpdateItemName = (event) => {
     setUpdateItemName(event.target.value);
   }
@@ -193,22 +199,24 @@ const AdminPage = () => {
 
   const updateItem = async (event) => {
     event.preventDefault();
-    const formData = new FormData();
-    formData.append('updateItemName', updateItemName);
-    formData.append('updateItemDescription', updateItemDescription);
-    formData.append('updateItemPrice', updateItemPrice);
-    formData.append('updateItemDetail', updateItemDetail);
-    formData.append('updateItemMaxAmount', updateItemMaxAmount);
-    formData.append('updateItemStock', updateItemStock);
+
+    const params = {
+      updateItemName,
+      updateItemDescription,
+      updateItemPrice,
+      updateItemDetail,
+      updateItemMaxAmount,
+      updateItemStock,
+    };
 
     try {
-      const response = fetch(`http://127.0.0.1:3000/items/${update}`, {
-        method: 'PUT',
-        body: formData
+      const response = await axios.put(`http://127.0.0.1:3000/items/${updateName}`, null, {
+        params: params,
       })
+      console.log(response, 'response')
 
-      if (response.ok) {
-        const data = await response.json()
+      if (response.status === 200 || response.status === 201) {
+        const data = await response.data;
         if (data.message === 'Item update success') {
           alert('파일이 업데이트 되었습니다.');
         }
@@ -223,49 +231,67 @@ const AdminPage = () => {
   }
 
   return (
-  <fragment className="container">
-    <form onSubmit={itemSubmit}>
-      <div className="item">
-        <h1 name="title">item table upload form</h1>
-        <div className="itemInputContainer">
-          <div className="inputFirst">
-            <h2>name</h2>
-            <input value={inputItemName} onChange={handleInputItemName} />
-            <h2>description</h2>
-            <input value={inputItemDescription} onChange={handleInputItemDescription} />
-            <h2>price</h2>
-            <input value={inputItemPrice} onChange={handleInputItemPrice} />
-            <h2>detail</h2>
-            <input value={inputItemDetail} onChange={handleInputItemDetail} />
+    <fragment className="container">
+      <form onSubmit={itemSubmit}>
+        <div className="item">
+          <h1>item table upload form</h1>
+          <div className="itemInputContainer">
+            <div className="inputFirst">
+              <h2>name</h2>
+              <input value={inputItemName} onChange={handleInputItemName} />
+              <h2>description</h2>
+              <input value={inputItemDescription} onChange={handleInputItemDescription} />
+              <h2>price</h2>
+              <input value={inputItemPrice} onChange={handleInputItemPrice} />
+              <h2>detail</h2>
+              <input value={inputItemDetail} onChange={handleInputItemDetail} />
+            </div>
+            <div className="inputSecond">
+              <h2>sub_category_name</h2>
+              <input value={inputItemSubCategoryId} onChange={handleInputItemSubCategoryId} />
+              <h2>max_amount</h2>
+              <input value={inputItemMaxAmount} onChange={handleInputItemMaxAmount} />
+              <h2>stock</h2>
+              <input value={inputItemStock} onChange={handleInputItemStock} />
+            </div>
           </div>
-          <div className="inputSecond">
-            <h2>sub_category_name</h2>
-            <input value={inputItemSubCategoryId} onChange={handleInputItemSubCategoryId} />
-            <h2>max_amount</h2>
-            <input value={inputItemMaxAmount} onChange={handleInputItemMaxAmount} />
-            <h2>stock</h2>
-            <input value={inputItemStock} onChange={handleInputItemStock} />
-          </div>
+          <input name="itemSubmit" type="file" onChange={handleItemFileChange} />
+          <button name="itemButton" type="submit">Upload</button>
         </div>
-        <input name="itemSubmit" type="file" onChange={handleItemFileChange} />
-        <button name="itemButton" type="submit">Upload</button>
-      </div>
-    </form>
-    <form onSubmit={deleteItem}>
-      <div className="deleteItem">
-        <h1 name="title">delete item</h1>
-        <h2>itemName</h2>
-        <input name="deleteItemInput" value={deleteItemName} onChange={handleDeleteItemName} />
-        <button name="deleteButton" type="submit">Delete</button>
-      </div>
-    </form>
-    <form onSubmit={updateItem}>
-      <h1>update item</h1>
-      <h2>itemName</h2>
-      <input value={updateItemName} onChange={handleUpdateItemName} />
-    </form>
-  </fragment>
-)
+      </form>
+
+      <fragment className="rightItems">
+        <form onSubmit={deleteItem}>
+          <div className="deleteItem">
+            <h1>delete item</h1>
+            <h2>itemName</h2>
+            <input name="deleteItemInput" value={deleteItemName} onChange={handleDeleteItemName} />
+            <button name="deleteButton" type="submit">Delete</button>
+          </div>
+        </form>
+
+        <form onSubmit={updateItem}>
+          <h1>update item</h1>
+          <h2>updateItemName</h2>
+          <input value={updateName} onChange={handleUpdateName}></input>
+          <h2>name</h2>
+          <input value={updateItemName} onChange={handleUpdateItemName} />
+          <h2>description</h2>
+          <input value={updateItemDescription} onChange={handleUpdateItemDescription}></input>
+          <h2>price</h2>
+          <input value={updateItemPrice} onChange={handleUpdateItemPrice}></input>
+          <h2>Detail</h2>
+          <input value={updateItemDetail} onChange={handleUpdateItemDetail}></input>
+          <h2>max_amount</h2>
+          <input value={updateItemMaxAmount} onChange={handleUpdateItemMaxAmount}></input>
+          <h2>stock</h2>
+          <input value={updateItemStock} onChange={handleUpdateItemStock}></input>
+          <button name="updateButton" type="submit">Update</button>
+        </form>
+      </fragment>
+
+    </fragment>
+  )
 };
 
 export default AdminPage;
